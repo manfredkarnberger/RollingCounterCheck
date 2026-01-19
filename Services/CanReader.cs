@@ -1,224 +1,139 @@
-﻿using System;
+﻿using RollingCounterCheck.Services;
+using RollingCounterCheck.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Windows.Threading;
-using RollingCounterCheck.ViewModels;
 
 namespace RollingCounterCheck.Services
 {
     public class CanReader
     {
         private readonly MainViewModel _vm;
+        private readonly AutoResetEvent _rxEvent = new(false);
+        private Thread? _thread;
+        private bool _running;
 
-        private Thread? _readThread;
-        private volatile bool _running;
-
-        private readonly AutoResetEvent _receiveEvent = new(false);
-
-        private readonly List<(TPCANMsg Msg, ulong TimestampUs)> _buffer = new();
+        private readonly List<(TPCANMsg, ulong)> _buffer = new();
         private readonly object _lock = new();
 
-        private readonly DispatcherTimer _guiTimer;
-        private readonly DispatcherTimer _ledTimer;
-        private readonly DispatcherTimer _messageTimeoutTimer;
+        private readonly Stopwatch _busTimer = Stopwatch.StartNew();
+        private long _bits;
 
-        private readonly Stopwatch _busLoadTimer = Stopwatch.StartNew();
-        private long _bitsReceived;
-        private bool _ledState;
-        private bool _hasRecentMessage;
+        private bool _hasMsg;
 
         public CanReader(MainViewModel vm, Dispatcher dispatcher)
         {
             _vm = vm;
 
-            // GUI Timer 100ms
-            _guiTimer = new DispatcherTimer(TimeSpan.FromMilliseconds(100),
-                                           DispatcherPriority.Background,
-                                           (_, _) => UpdateGui(),
-                                           dispatcher);
-            _guiTimer.Start();
+            new DispatcherTimer(TimeSpan.FromMilliseconds(100), DispatcherPriority.Background,
+                (_, _) => UpdateGui(), dispatcher).Start();
 
-            // LED blink 2Hz
-            _ledTimer = new DispatcherTimer(TimeSpan.FromMilliseconds(500),
-                                            DispatcherPriority.Background,
-                                            (_, _) =>
-                                            {
-                                                if (_hasRecentMessage)
-                                                {
-                                                    _ledState = !_ledState;
-                                                    _vm.LedVisible = _ledState;
-                                                }
-                                                else
-                                                {
-                                                    _ledState = false;
-                                                    _vm.LedVisible = false;
-                                                }
-                                            },
-                                            dispatcher);
-            _ledTimer.Start();
+            new DispatcherTimer(TimeSpan.FromMilliseconds(500), DispatcherPriority.Background,
+                (_, _) => _vm.LedVisible = _hasMsg && !_vm.LedVisible, dispatcher).Start();
 
-            // Reset Flag nach 1s ohne neue Nachrichten
-            _messageTimeoutTimer = new DispatcherTimer(TimeSpan.FromMilliseconds(1000),
-                                                       DispatcherPriority.Background,
-                                                       (_, _) => _hasRecentMessage = false,
-                                                       dispatcher);
-            _messageTimeoutTimer.Start();
+            new DispatcherTimer(TimeSpan.FromSeconds(1), DispatcherPriority.Background,
+                (_, _) => _hasMsg = false, dispatcher).Start();
         }
 
-        public void Start(int baudrateKbps = 500)
+        public void Start(int baud = 500)
         {
-            if (_running) return;
-
-            InitializePcan(baudrateKbps);
-
+            InitPcan(baud);
             _running = true;
-            _readThread = new Thread(ReadLoop)
-            {
-                IsBackground = true,
-                Name = "PCAN Receive Thread"
-            };
-            _readThread.Start();
+            _thread = new Thread(ReadLoop) { IsBackground = true };
+            _thread.Start();
+        }
+
+        public void SetBaudrate(int baud)
+        {
+            Stop();
+            Start(baud);
+            _vm.CanBaudrateKbps = baud;
         }
 
         public void Stop()
         {
             _running = false;
-            _receiveEvent.Set();
-            _readThread?.Join();
-
+            _rxEvent.Set();
+            _thread?.Join();
             PCANBasic.Uninitialize(PCANBasic.PCAN_USBBUS1);
         }
 
-        public void SetBaudrate(int kbps)
+        private void InitPcan(int baud)
         {
-            // Stop Thread
-            _running = false;
-            _receiveEvent.Set();
-            _readThread?.Join();
+            PCANBasic.Initialize(PCANBasic.PCAN_USBBUS1,
+                baud switch
+                {
+                    125 => TPCANBaudrate.PCAN_BAUD_125K,
+                    250 => TPCANBaudrate.PCAN_BAUD_250K,
+                    500 => TPCANBaudrate.PCAN_BAUD_500K,
+                    1000 => TPCANBaudrate.PCAN_BAUD_1M,
+                    _ => TPCANBaudrate.PCAN_BAUD_500K
+                });
 
-            // Reinitialize hardware
-            PCANBasic.Uninitialize(PCANBasic.PCAN_USBBUS1);
-            InitializePcan(kbps);
-
-            // Restart Thread
-            _running = true;
-            _readThread = new Thread(ReadLoop)
-            {
-                IsBackground = true,
-                Name = "PCAN Receive Thread"
-            };
-            _readThread.Start();
-
-            _vm.CanBaudrateKbps = kbps;
+            uint h = (uint)_rxEvent.SafeWaitHandle.DangerousGetHandle().ToInt64();
+            PCANBasic.SetValue(PCANBasic.PCAN_USBBUS1,
+                TPCANParameter.PCAN_RECEIVE_EVENT, ref h, (uint)IntPtr.Size);
         }
 
-        private void InitializePcan(int kbps)
-        {
-            PCANBasic.Initialize(PCANBasic.PCAN_USBBUS1, BaudrateFromKbps(kbps));
-
-            uint handleValue = (uint)_receiveEvent.SafeWaitHandle.DangerousGetHandle().ToInt64();
-            var status = PCANBasic.SetValue(
-                PCANBasic.PCAN_USBBUS1,
-                TPCANParameter.PCAN_RECEIVE_EVENT,
-                ref handleValue,
-                (uint)IntPtr.Size);
-
-            if (status != TPCANStatus.PCAN_ERROR_OK)
-                throw new InvalidOperationException($"PCAN_RECEIVE_EVENT failed: {status}");
-        }
-
-        private static TPCANBaudrate BaudrateFromKbps(int kbps) => kbps switch
-        {
-            125 => TPCANBaudrate.PCAN_BAUD_125K,
-            250 => TPCANBaudrate.PCAN_BAUD_250K,
-            500 => TPCANBaudrate.PCAN_BAUD_500K,
-            1000 => TPCANBaudrate.PCAN_BAUD_1M,
-            _ => TPCANBaudrate.PCAN_BAUD_500K
-        };
-
-        private static ulong ToMicroseconds(TPCANTimestamp ts)
-            => ((ulong)ts.millis_overflow << 32 | ts.millis) * 1000UL + ts.micros;
+        private static ulong TsUs(TPCANTimestamp t)
+            => ((ulong)t.millis_overflow << 32 | t.millis) * 1000UL + t.micros;
 
         private void ReadLoop()
         {
             while (_running)
             {
-                _receiveEvent.WaitOne();
-                if (!_running) break;
-
-                while (PCANBasic.Read(PCANBasic.PCAN_USBBUS1,
-                                       out TPCANMsg msg,
-                                       out TPCANTimestamp ts)
-                       == TPCANStatus.PCAN_ERROR_OK)
+                _rxEvent.WaitOne();
+                while (PCANBasic.Read(PCANBasic.PCAN_USBBUS1, out var msg, out var ts) ==
+                       TPCANStatus.PCAN_ERROR_OK)
                 {
-                    ulong timestampUs = ToMicroseconds(ts);
-                    _bitsReceived += 47 + msg.LEN * 8;
-
+                    _bits += 47 + msg.LEN * 8;
                     lock (_lock)
-                    {
-                        _buffer.Add((msg, timestampUs));
-                    }
+                        _buffer.Add((msg, TsUs(ts)));
                 }
             }
         }
 
         private void UpdateGui()
         {
-            List<(TPCANMsg Msg, ulong TimestampUs)> messages;
-            lock (_lock)
-            {
-                messages = new List<(TPCANMsg, ulong)>(_buffer);
-                _buffer.Clear();
-            }
+            List<(TPCANMsg, ulong)> copy;
+            lock (_lock) { copy = new(_buffer); _buffer.Clear(); }
 
-            foreach (var (msg, timestampUs) in messages)
+            foreach (var (msg, ts) in copy)
             {
                 var row = _vm.GetOrCreate(msg.ID);
                 row.DLC = msg.LEN;
-
-                var chars = new char[msg.LEN * 3 - 1];
-                int idx = 0;
-                for (int i = 0; i < msg.LEN; i++)
-                {
-                    byte b = msg.DATA[i];
-                    chars[idx++] = GetHex(b >> 4);
-                    chars[idx++] = GetHex(b & 0xF);
-                    if (i < msg.LEN - 1) chars[idx++] = ' ';
-                }
-                row.Payload = new string(chars);
-
+                row.Payload = string.Join(" ", msg.DATA[..msg.LEN].Select(b => b.ToString("X2")));
                 row.Counter++;
+
                 if (row.LastTimestampUs != 0)
-                    row.CycleTimeMs = (timestampUs - row.LastTimestampUs) / 1000.0;
-                row.LastTimestampUs = timestampUs;
+                    row.CycleTimeMs = (ts - row.LastTimestampUs) / 1000.0;
+                row.LastTimestampUs = ts;
+
+                if (row.RcEnabled)
+                {
+                    UInt64 rc = RollingCounterDecoder.Decode(
+                        msg.DATA, row.RcStartBit, row.RcBitLength, row.RcBigEndian);
+
+                    row.RcValue = rc;
+                    //if (row.LastRcValue.HasValue &&
+                    //    !RollingCounterDecoder.IsLinear(row.LastRcValue.Value, rc, row.RcBitLength))
+                    //    row.RcErrorCount++;
+
+                    row.LastRcValue = 1; // rc;
+                }
             }
 
-            if (messages.Count > 0)
+            if (copy.Count > 0) _hasMsg = true;
+
+            if (_busTimer.ElapsedMilliseconds > 500)
             {
-                _hasRecentMessage = true;
+                _vm.BusLoadPercent = _bits == 0 ? 0 :
+                    (_bits / _busTimer.Elapsed.TotalSeconds) / 500_000 * 100;
+                _bits = 0;
+                _busTimer.Restart();
             }
-
-            UpdateBusLoad();
-        }
-
-        private static char GetHex(int val)
-            => (char)(val < 10 ? '0' + val : 'A' + (val - 10));
-
-        private void UpdateBusLoad()
-        {
-            if (_busLoadTimer.ElapsedMilliseconds < 500) return;
-
-            double seconds = _busLoadTimer.Elapsed.TotalSeconds;
-
-            double busLoad = (_bitsReceived > 0)
-                ? (_bitsReceived / seconds) / 500_000.0 * 100.0
-                : 0.0;
-
-            _vm.BusLoadPercent = busLoad;
-
-            _bitsReceived = 0;
-            _busLoadTimer.Restart();
         }
     }
 }

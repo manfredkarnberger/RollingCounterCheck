@@ -1,78 +1,25 @@
-﻿using RollingCounterCheck.Models;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Linq;
-using System.Windows.Data;
+﻿using System.Collections.ObjectModel;
+using RollingCounterCheck.Models;
 
 namespace RollingCounterCheck.ViewModels
 {
-    public class MainViewModel : INotifyPropertyChanged
+    public class MainViewModel
     {
         public ObservableCollection<CanMessageRow> Messages { get; } = new();
 
-        private readonly object _sync = new();
+        public double BusLoadPercent { get; set; }
+        public int CanBaudrateKbps { get; set; } = 500;
+        public bool LedVisible { get; set; }
 
-        private double _busLoadPercent;
-        public double BusLoadPercent
+        public CanMessageRow GetOrCreate(uint id)
         {
-            get => _busLoadPercent;
-            set
-            {
-                if (_busLoadPercent != value)
-                {
-                    _busLoadPercent = value;
-                    PropertyChanged?.Invoke(this,
-                        new PropertyChangedEventArgs(nameof(BusLoadPercent)));
-                }
-            }
-        }
+            foreach (var m in Messages)
+                if (m.CanId == id)
+                    return m;
 
-        private int _canBaudrateKbps = 500;
-        public int CanBaudrateKbps
-        {
-            get => _canBaudrateKbps;
-            set
-            {
-                if (_canBaudrateKbps != value)
-                {
-                    _canBaudrateKbps = value;
-                    PropertyChanged?.Invoke(this,
-                        new PropertyChangedEventArgs(nameof(CanBaudrateKbps)));
-                }
-            }
-        }
-
-        private bool _ledVisible;
-        public bool LedVisible
-        {
-            get => _ledVisible;
-            set
-            {
-                if (_ledVisible != value)
-                {
-                    _ledVisible = value;
-                    PropertyChanged?.Invoke(this,
-                        new PropertyChangedEventArgs(nameof(LedVisible)));
-                }
-            }
-        }
-
-        public MainViewModel()
-        {
-            BindingOperations.EnableCollectionSynchronization(Messages, _sync);
-        }
-
-        public CanMessageRow GetOrCreate(uint canId)
-        {
-            var row = Messages.FirstOrDefault(r => r.CanId == canId);
-            if (row == null)
-            {
-                row = new CanMessageRow(canId);
-                Messages.Add(row);
-            }
+            var row = new CanMessageRow(id);
+            Messages.Add(row);
             return row;
         }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
     }
 }

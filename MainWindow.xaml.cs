@@ -12,26 +12,22 @@ namespace RollingCounterCheck
         public MainWindow()
         {
             InitializeComponent();
-
             var vm = new MainViewModel();
             DataContext = vm;
-
             _reader = new CanReader(vm, Dispatcher);
-            _reader.Start(); // Standard 500 kbit/s
+            _reader.Start();
         }
 
-        private void MenuFileExit_Click(object sender, RoutedEventArgs e)
+        private void Exit_Click(object s, RoutedEventArgs e)
         {
             _reader.Stop();
             Application.Current.Shutdown();
         }
 
-        private void MenuCanBaud_Click(object sender, RoutedEventArgs e)
+        private void Baud_Click(object s, RoutedEventArgs e)
         {
-            if (sender is MenuItem mi && mi.Tag is string tagStr && int.TryParse(tagStr, out int baud))
-            {
-                _reader.SetBaudrate(baud);
-            }
+            if (s is MenuItem m && int.TryParse(m.Tag.ToString(), out int b))
+                _reader.SetBaudrate(b);
         }
     }
 }

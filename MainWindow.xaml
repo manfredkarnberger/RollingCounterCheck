@@ -6,79 +6,52 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RollingCounterCheck"
         mc:Ignorable="d"
-        Title="RollingCounterCheck" Height="450" Width="800">
+        Title="RollingCounterCheck" Height="450" Width="800" Background="#5F5F5F">
 
     <Window.Resources>
-        <CollectionViewSource x:Key="SortedMessages"
+        <CollectionViewSource x:Key="Sorted"
                               Source="{Binding Messages}">
             <CollectionViewSource.SortDescriptions>
-                <scm:SortDescription PropertyName="CanId"
-                                     Direction="Ascending"/>
+                <scm:SortDescription PropertyName="CanId" Direction="Ascending"/>
             </CollectionViewSource.SortDescriptions>
         </CollectionViewSource>
-
-        <local:BoolToColorConverter x:Key="BoolToColorConverter"/>
+        <local:BoolToColorConverter x:Key="LedConv"/>
     </Window.Resources>
 
     <DockPanel Margin="10">
-
-        <Menu DockPanel.Dock="Top">
-            <MenuItem Header="_Datei">
-                <MenuItem Header="_Beenden" Click="MenuFileExit_Click"/>
+        <Menu DockPanel.Dock="Top" Margin="0,0,0,10" FontSize="16">
+            <MenuItem Header="Datei">
+                <MenuItem Header="Beenden" Click="Exit_Click"/>
             </MenuItem>
-
-            <MenuItem Header="_CAN">
-                <MenuItem Header="Datenrate">
-                    <MenuItem Header="125 kbit/s" Click="MenuCanBaud_Click" Tag="125"/>
-                    <MenuItem Header="250 kbit/s" Click="MenuCanBaud_Click" Tag="250"/>
-                    <MenuItem Header="500 kbit/s" Click="MenuCanBaud_Click" Tag="500"/>
-                    <MenuItem Header="1000 kbit/s" Click="MenuCanBaud_Click" Tag="1000"/>
-                </MenuItem>
+            <MenuItem Header="CAN">
+                <MenuItem Header="125" Tag="125" Click="Baud_Click"/>
+                <MenuItem Header="250" Tag="250" Click="Baud_Click"/>
+                <MenuItem Header="500" Tag="500" Click="Baud_Click"/>
+                <MenuItem Header="1000" Tag="1000" Click="Baud_Click"/>
             </MenuItem>
-
-            <MenuItem Header="_Hilfe"/>
         </Menu>
 
-        <StatusBar DockPanel.Dock="Bottom">
-            <StatusBarItem>
-                <TextBlock Text="{Binding BusLoadPercent,
-                          StringFormat=Busload: {0:F1} %}" />
-            </StatusBarItem>
-
-            <StatusBarItem>
-                <TextBlock Text="{Binding CanBaudrateKbps,
-                          StringFormat=CAN Baudrate: {0} kbit/s}" />
-            </StatusBarItem>
-
-            <StatusBarItem>
-                <Ellipse Width="16" Height="16" Stroke="Black" StrokeThickness="1">
-                    <Ellipse.Fill>
-                        <SolidColorBrush Color="{Binding LedVisible, Converter={StaticResource BoolToColorConverter}}"/>
-                    </Ellipse.Fill>
-                </Ellipse>
-            </StatusBarItem>
+        <StatusBar DockPanel.Dock="Bottom" Margin="0,10,0,0" FontSize="16">
+            <TextBlock Text="{Binding BusLoadPercent,StringFormat=Busload {0:F1}%}"/>
+            <TextBlock Text="{Binding CanBaudrateKbps, StringFormat={}{0} kbit/s}"/>
+            <Ellipse Width="14" Height="14" Stroke="Black"
+                     Fill="{Binding LedVisible,Converter={StaticResource LedConv}}"/>
         </StatusBar>
 
-        <DataGrid ItemsSource="{Binding Source={StaticResource SortedMessages}}"
-                  AutoGenerateColumns="False"
-                  CanUserAddRows="False">
+        <DataGrid ItemsSource="{Binding Source={StaticResource Sorted}}" AutoGenerateColumns="False" FontSize="16">
             <DataGrid.Columns>
-                <DataGridCheckBoxColumn Header="Log"
-                                        Binding="{Binding LogToCsv}" />
-                <DataGridTextColumn Header="CAN ID"
-                                    Binding="{Binding CanId,
-                                              StringFormat=0x{0:X}}" />
-                <DataGridTextColumn Header="DLC"
-                                    Binding="{Binding DLC}" />
-                <DataGridTextColumn Header="Payload"
-                                    Binding="{Binding Payload}" />
-                <DataGridTextColumn Header="CycleTime [ms]"
-                                    Binding="{Binding CycleTimeMs,
-                                              StringFormat=F1}" />
-                <DataGridTextColumn Header="Counter"
-                                    Binding="{Binding Counter}" />
+                <DataGridCheckBoxColumn Header="RC" Binding="{Binding RcEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <DataGridTextColumn Header="CAN ID" Binding="{Binding CanId,StringFormat=0x{0:X}}"/>
+                <DataGridTextColumn Header="DLC" Binding="{Binding DLC}"/>
+                <DataGridTextColumn Header="Payload" Binding="{Binding Payload}"/>
+                <DataGridTextColumn Header="Cycle [ms]" Binding="{Binding CycleTimeMs,StringFormat=F1}"/>
+                <DataGridTextColumn Header="Counter" Binding="{Binding Counter}"/>
+                <DataGridTextColumn Header="RC StartPos" Binding="{Binding RcStartBit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <DataGridTextColumn Header="RC BitLength" Binding="{Binding RcBitLength, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <DataGridCheckBoxColumn Header="Endianess" Binding="{Binding RcBigEndian}"/>
+                <DataGridTextColumn Header="RC Value" Binding="{Binding RcValue}"/>
+                <DataGridTextColumn Header="RC Errors" Binding="{Binding RcErrorCount}"/>
             </DataGrid.Columns>
         </DataGrid>
-
-    </DockPanel>
+    </DockPanel> 
 </Window>
