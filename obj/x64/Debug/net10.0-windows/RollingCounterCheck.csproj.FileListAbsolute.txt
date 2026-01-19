@@ -26,6 +26,7 @@ M:\Repos\RollingCounterCheck\bin\x64\Debug\net10.0-windows\RollingCounterCheck.d
 M:\Repos\RollingCounterCheck\bin\x64\Debug\net10.0-windows\RollingCounterCheck.pdb
 M:\Repos\RollingCounterCheck\obj\x64\Debug\net10.0-windows\MainWindow.g.cs
 M:\Repos\RollingCounterCheck\obj\x64\Debug\net10.0-windows\App.g.cs
+M:\Repos\RollingCounterCheck\obj\x64\Debug\net10.0-windows\GeneratedInternalTypeHelper.g.cs
 M:\Repos\RollingCounterCheck\obj\x64\Debug\net10.0-windows\RollingCounterCheck_MarkupCompile.cache
 M:\Repos\RollingCounterCheck\obj\x64\Debug\net10.0-windows\RollingCounterCheck_MarkupCompile.lref
 M:\Repos\RollingCounterCheck\obj\x64\Debug\net10.0-windows\MainWindow.baml
@@ -40,4 +41,3 @@ M:\Repos\RollingCounterCheck\obj\x64\Debug\net10.0-windows\refint\RollingCounter
 M:\Repos\RollingCounterCheck\obj\x64\Debug\net10.0-windows\RollingCounterCheck.pdb
 M:\Repos\RollingCounterCheck\obj\x64\Debug\net10.0-windows\RollingCounterCheck.genruntimeconfig.cache
 M:\Repos\RollingCounterCheck\obj\x64\Debug\net10.0-windows\ref\RollingCounterCheck.dll
-M:\Repos\RollingCounterCheck\obj\x64\Debug\net10.0-windows\GeneratedInternalTypeHelper.g.cs

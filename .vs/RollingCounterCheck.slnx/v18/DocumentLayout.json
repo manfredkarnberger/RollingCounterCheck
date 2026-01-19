@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "M:\\Repos\\RollingCounterCheck\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{CC30DB62-BBDE-0D3C-E2A4-9DC9E22F8816}|RollingCounterCheck.csproj|m:\\repos\\rollingcountercheck\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{CC30DB62-BBDE-0D3C-E2A4-9DC9E22F8816}|RollingCounterCheck.csproj|solutionrelative:mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{CC30DB62-BBDE-0D3C-E2A4-9DC9E22F8816}|RollingCounterCheck.csproj|m:\\repos\\rollingcountercheck\\services\\canreader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{CC30DB62-BBDE-0D3C-E2A4-9DC9E22F8816}|RollingCounterCheck.csproj|solutionrelative:services\\canreader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -13,10 +17,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{CC30DB62-BBDE-0D3C-E2A4-9DC9E22F8816}|RollingCounterCheck.csproj|m:\\repos\\rollingcountercheck\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{CC30DB62-BBDE-0D3C-E2A4-9DC9E22F8816}|RollingCounterCheck.csproj|solutionrelative:mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CC30DB62-BBDE-0D3C-E2A4-9DC9E22F8816}|RollingCounterCheck.csproj|m:\\repos\\rollingcountercheck\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{CC30DB62-BBDE-0D3C-E2A4-9DC9E22F8816}|RollingCounterCheck.csproj|solutionrelative:mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{CC30DB62-BBDE-0D3C-E2A4-9DC9E22F8816}|RollingCounterCheck.csproj|m:\\repos\\rollingcountercheck\\models\\canmessagerow.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -42,7 +42,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 7,
           "Children": [
             {
               "$type": "Bookmark",
@@ -50,7 +50,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "BoolToColorConverter.cs",
               "DocumentMoniker": "M:\\Repos\\RollingCounterCheck\\Converters\\BoolToColorConverter.cs",
               "RelativeDocumentMoniker": "Converters\\BoolToColorConverter.cs",
@@ -58,8 +58,7 @@
               "RelativeToolTip": "Converters\\BoolToColorConverter.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-19T10:09:04.499Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-19T10:09:04.499Z"
             },
             {
               "$type": "Document",
@@ -75,7 +74,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "CanReader.cs",
               "DocumentMoniker": "M:\\Repos\\RollingCounterCheck\\Services\\CanReader.cs",
               "RelativeDocumentMoniker": "Services\\CanReader.cs",
@@ -96,8 +95,7 @@
               "RelativeToolTip": "ViewModels\\MainViewModel.cs",
               "ViewState": "AgIAACQAAAAAAAAAAAAgwE4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-18T21:02:39.925Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-18T21:02:39.925Z"
             },
             {
               "$type": "Document",
@@ -109,8 +107,7 @@
               "RelativeToolTip": "RollingCounterCheck.csproj",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2026-01-18T21:02:16.346Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-18T21:02:16.346Z"
             },
             {
               "$type": "Document",
@@ -122,12 +119,11 @@
               "RelativeToolTip": "Models\\CanMessageRow.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAACIAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-18T21:01:46.752Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-18T21:01:46.752Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 0,
               "Title": "MainWindow.xaml",
               "DocumentMoniker": "M:\\Repos\\RollingCounterCheck\\MainWindow.xaml",
               "RelativeDocumentMoniker": "MainWindow.xaml",
@@ -139,7 +135,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "MainWindow.xaml.cs",
               "DocumentMoniker": "M:\\Repos\\RollingCounterCheck\\MainWindow.xaml.cs",
               "RelativeDocumentMoniker": "MainWindow.xaml.cs",
@@ -147,8 +143,7 @@
               "RelativeToolTip": "MainWindow.xaml.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAACUAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-18T21:00:47.998Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-18T21:00:47.998Z"
             }
           ]
         }

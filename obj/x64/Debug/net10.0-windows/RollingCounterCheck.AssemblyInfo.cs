@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("RollingCounterCheck")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+eff65541adf58f1bb6d7551bed953d43652a9db5")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c0feb5ae4860beb97c403ea158cc59af82114a82")]
 [assembly: System.Reflection.AssemblyProductAttribute("RollingCounterCheck")]
 [assembly: System.Reflection.AssemblyTitleAttribute("RollingCounterCheck")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

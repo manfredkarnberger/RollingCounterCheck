@@ -20,7 +20,7 @@
         <local:BoolToColorConverter x:Key="BoolToColorConverter"/>
     </Window.Resources>
 
-    <DockPanel>
+    <DockPanel Margin="10">
 
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="_Datei">
